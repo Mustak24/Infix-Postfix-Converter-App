@@ -1,131 +1,139 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { useState } from 'react';
+import {Pressable, SafeAreaView,ScrollView,StyleSheet, Text, TextInput, useColorScheme, View} from 'react-native';
+import TypingText from './src/components/TypingText';
+import { infixToPostfix, postfixToInfix } from './src/functions/conveter';
+import DetailsCard from './src/components/DetailsCard';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+type resultType = {
+  action: string;
+  solution: string;
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+export default function App(): React.JSX.Element {
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const isDatrkMode = useColorScheme() === 'dark';
+  const backgroundColor = isDatrkMode ? 'black' : 'white';
+  const color = isDatrkMode ? 'white' : 'blaack';
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the recommendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
+  const [text, setText] = useState<string>('');
+
+  const [result, setResult] = useState<resultType[]>([]);
+
+  const handleConvert = (type: string) => {
+    let res = [];
+    if (type === 'infix') {
+      res = postfixToInfix(text)
+    } else {
+      res = infixToPostfix(text)
+    }
+    setResult(res);
+  }
 
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
+    <SafeAreaView style={[styles.container, {backgroundColor}]}>
+        <TypingText 
+          text='Build By Mustak24' 
+          speed={100} 
           style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+            fontSize: 16,
+            fontWeight: 'bold',
+            position: 'absolute',
+            top: 40, left: 8,
+            color
+          }} 
+        ></TypingText>
+
+        <TypingText text='Welcome to Convertor' style={{fontSize: 20, color}} />
+
+        <TextInput 
+          placeholder='Enter your expresion ...'
+          style={[styles.inputText, {color}]}
+          value={text}
+          onChangeText={setText}
+        />
+
+        <View style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 20,
+          marginBlock: 10
+        }}>
+          <Pressable style={[styles.btn]} onPress={() => handleConvert('infix')}>
+            <Text style={{color}}>Postfix to Infix</Text>
+          </Pressable>
+          <Pressable style={[styles.btn]} onPress={() => handleConvert('postfix')}>
+            <Text style={{color}}>Infix to Postfix</Text>
+          </Pressable>
         </View>
-      </ScrollView>
-    </View>
+
+        <DetailsCard summary='Solution' color={color} backgroundColor={backgroundColor}>
+          <Text style={{color}}>{result.at(-1)?.solution || ''}</Text>
+        </DetailsCard>
+
+
+        <DetailsCard summary='Steps' color={color} backgroundColor={backgroundColor} style={{width: '100%', flex: 1, marginTop: 30}}>  
+          <ScrollView 
+            style={{width: '100%', height: '100%'}}
+          >
+            {
+              result.map((item, index) => (
+                <View 
+                  key={index} 
+                  style={{
+                    display: 'flex', gap: 4, marginBottom: 20,
+                    borderBottomColor: 'gray', borderBottomWidth: 1, paddingBottom: 10,
+                    alignItems: 'flex-start', justifyContent: 'center'
+                  }}
+                >
+                  <Text style={{color}}><Text style={{fontWeight: '800'}}>Action: </Text> {item?.action}</Text>
+                  
+                  <Text style={{color}}><Text style={{fontWeight: '800'}}>Solution: </Text> {item?.solution}</Text>
+                </View>
+              ))
+            }
+          </ScrollView>
+        </DetailsCard>
+      
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'column',
+    backgroundColor: '#282c34',
+    width: '100%',
+    height: '100%',
+    padding: 20,
+    paddingTop: 80,
+    position: 'relative',
+    
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
-export default App;
+  inputText: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 100,
+  },
+
+  btn: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+    height: 40,
+    width: '100%',
+    maxWidth: 150,
+    paddingInline: 20,
+    backgroundColor: 'royalblue'
+  }
+})
