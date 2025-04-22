@@ -59,10 +59,10 @@ export default function App(): React.JSX.Element {
           marginBlock: 10
         }}>
           <Pressable style={[styles.btn]} onPress={() => handleConvert('infix')}>
-            <Text style={{color}}>Postfix to Infix</Text>
+            <Text style={{color: 'white'}}>Postfix to Infix</Text>
           </Pressable>
           <Pressable style={[styles.btn]} onPress={() => handleConvert('postfix')}>
-            <Text style={{color}}>Infix to Postfix</Text>
+            <Text style={{color: 'white'}}>Infix to Postfix</Text>
           </Pressable>
         </View>
 
